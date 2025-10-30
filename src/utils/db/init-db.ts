@@ -5,14 +5,13 @@ import {
   ScanCommand,
 } from "@aws-sdk/client-dynamodb";
 import db from "./dynamo-db-client";
+import { TABLE_NAME } from "./table";
 
 /**
  * DBの初期化処理
  * @returns
  */
 const intializeDB = async () => {
-  const TABLE_NAME = "PostsTable";
-
   // DBにテーブルが存在するか確認する
   try {
     const listTablesCmd = new ListTablesCommand({});

@@ -1,22 +1,19 @@
 import { Hono } from "hono";
 import { DeleteCommand, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ScanCommand } from "@aws-sdk/client-dynamodb";
-
 import { Post } from "../../types/Posts";
 import db from "../../utils/db/dynamo-db-client";
+import { TABLE_NAME } from "../../utils/db/table";
 
 const postsHono = new Hono();
 
-const TABLE_NAME = "PostsTable";
-
-// read one
-// TODO: idがundefinedになる
+// read one✅
 postsHono.get("/:id", async (c) => {
-  const { id } = c.req.param;
+  const { id } = c.req.param();
 
   const cmd = new GetCommand({
     TableName: TABLE_NAME,
-    Key: { id },
+    Key: { id: Number(id) },
   });
 
   const result = await db.send(cmd);
@@ -52,7 +49,7 @@ postsHono.post("/", async (c) => {
   const createCmd = new PutCommand({
     TableName: TABLE_NAME,
     Item: {
-      id,
+      id: Number(id),
       title,
     },
   });
@@ -60,7 +57,7 @@ postsHono.post("/", async (c) => {
 
   const getCmd = new GetCommand({
     TableName: TABLE_NAME,
-    Key: { id },
+    Key: { id: Number(id) },
   });
   const result = await db.send(getCmd);
 
@@ -70,11 +67,11 @@ postsHono.post("/", async (c) => {
   });
 });
 
-// update
+// update ✅
 postsHono.put("/:id", async (c) => {
-  const { id } = c.req.param;
-  const req = await c.req.json();
-  const { title } = req as Post;
+  const { id } = c.req.param();
+
+  const { title } = await c.req.json();
 
   const updateCmd = new PutCommand({
     TableName: TABLE_NAME,
@@ -97,9 +94,9 @@ postsHono.put("/:id", async (c) => {
   });
 });
 
-// delete
+// delete ✅
 postsHono.delete("/:id", async (c) => {
-  const { id } = c.req.param;
+  const { id } = c.req.param();
 
   const deleteCmd = new DeleteCommand({
     TableName: TABLE_NAME,
@@ -114,8 +111,3 @@ postsHono.delete("/:id", async (c) => {
 });
 
 export default postsHono;
-
-/**
- * Posts features
- * endpoint: /posts/${path}
- */
